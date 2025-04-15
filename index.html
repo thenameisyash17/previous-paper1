@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ECET Quiz - Physics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #51555c;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    #quiz {
+      background-color: #b0dafc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(181, 19, 19, 0.1);
+      padding: 20px;
+      width: 700px;
+      max-width: 200%;
+      animation: fadeIn 1s ease-in-out;
+      margin-top: 20px;
+      max-height: 700px;
+      overflow-y: auto;
+    }
+
+    .question-block {
+      margin-bottom: 40px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #000000e8;
+    }
+
+    .question {
+      font-weight: bold;
+      font-size: 18px;
+      color: #ff6c6c;
+      margin-bottom: 10px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 40px;
+    }
+
+    .options div {
+      margin: 4px 0;
+    }
+
+    .options input[type="radio"]:checked + label {
+      color: #9aa1a9;
+    }
+
+    .options input[type="radio"]:hover + label {
+      cursor: pointer;
+      background-color: #f1f5ff;
+      border-radius: 4px;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+      opacity: 0;
+      animation: fadeInResult 1s ease-in-out forwards;
+    }
+
+    .correct {
+      color: green;
+      font-weight: bold;
+    }
+
+    .incorrect {
+      color: red;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #050708;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1e937d;
+    }
+
+    button:active {
+      background-color: #003f75;
+    }
+
+    .reset-btn {
+      background-color: #50b3ce;
+    }
+
+    .reset-btn:hover {
+      background-color: #218838;
+    }
+
+    .reset-btn:active {
+      background-color: #1e7e34;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInResult {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #quiz {
+        width: 100%;
+        padding: 15px;
+      }
+
+      .options {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .question {
+        font-size: 16px;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>ECET EXAM - paper1</h1>
+
+  <div id="quiz"></div>
+
+  <div class="actions">
+    <button onclick="submitQuiz()">Submit</button>
+    <button class="reset-btn" onclick="resetQuiz()">Reset</button>
+  </div>
+
+  <div id="result" class="result"></div>
+
+  <script>
+    const quizData = {
+      physics: [
+  {
+    question: "Q1. The unit of electric current is:",
+    options: ["A) Volt", "B) Ampere", "C) Ohm", "D) Coulomb"],
+    correct: 1
+  },
+  {
+    question: "Q2. The velocity of light in vacuum is approximately:",
+    options: ["A) 3×10⁶ m/s", "B) 3×10⁸ m/s", "C) 3×10⁴ m/s", "D) 3×10⁹ m/s"],
+    correct: 1
+  },
+  {
+    question: "Q3. The force that keeps a body in circular motion is called:",
+    options: ["A) Frictional force", "B) Gravitational force", "C) Centripetal force", "D) Magnetic force"],
+    correct: 2
+  },
+  {
+    question: "Q4. The SI unit of force is:",
+    options: ["A) Newton", "B) Joule", "C) Watt", "D) Tesla"],
+    correct: 0
+  },
+  {
+    question: "Q5. The work done in moving a charge of 1 Coulomb through a potential difference of 1 volt is:",
+    options: ["A) 1 Joule", "B) 1 Watt", "C) 1 Ampere", "D) 1 Tesla"],
+    correct: 0
+  },
+  {
+    question: "Q6. Which of the following is the SI unit of power?",
+    options: ["A) Watt", "B) Newton", "C) Volt", "D) Ampere"],
+    correct: 0
+  },
+  {
+    question: "Q7. A body in motion continues in motion unless acted upon by an external force is the statement of:",
+    options: ["A) Newton’s first law", "B) Newton’s second law", "C) Newton’s third law", "D) Law of conservation of energy"],
+    correct: 0
+  },
+  {
+    question: "Q8. The unit of electric charge is:",
+    options: ["A) Ampere", "B) Volt", "C) Coulomb", "D) Watt"],
+    correct: 2
+  },
+  {
+    question: "Q9. The work done by a constant force is:",
+    options: ["A) F×d×cos(θ)", "B) F×d", "C) F×d²", "D) F×sin(θ)"],
+    correct: 0
+  },
+  {
+    question: "Q10. The law of conservation of energy is applicable to:",
+    options: ["A) Mechanical systems", "B) Thermal systems", "C) Electrical systems", "D) All of the above"],
+    correct: 3
+  },
+  {
+    question: "Q11. The unit of electric resistance is:",
+    options: ["A) Volt", "B) Watt", "C) Ohm", "D) Ampere"],
+    correct: 2
+  },
+  {
+    question: "Q12. The principle of moments is used to calculate:",
+    options: ["A) Force", "B) Torque", "C) Work", "D) Power"],
+    correct: 1
+  },
+  {
+    question: "Q13. The frequency of a sound wave is measured in:",
+    options: ["A) Decibels", "B) Hertz", "C) Joules", "D) Newtons"],
+    correct: 1
+  },
+  {
+    question: "Q14. The electric field inside a conductor is:",
+    options: ["A) Zero", "B) Constant", "C) Varying", "D) Infinite"],
+    correct: 0
+  },
+  {
+    question: "Q15. The energy stored in a capacitor is given by:",
+    options: ["A) 1/2×C×V²", "B) C×V²", "C) 1/2×C×I²", "D) 1/2×I×V²"],
+    correct: 0
+  },
+  {
+    question: "Q16. The frequency of the wave depends on:",
+    options: ["A) Amplitude", "B) Wavelength", "C) Velocity of the wave", "D) Source of the wave"],
+    correct: 3
+  },
+  {
+    question: "Q17. The speed of sound in air is approximately:",
+    options: ["A) 1000 m/s", "B) 300 m/s", "C) 343 m/s", "D) 1500 m/s"],
+    correct: 2
+  },
+  {
+    question: "Q18. The velocity of an object is defined as:",
+    options: ["A) The rate of change of displacement", "B) The rate of change of distance", "C) The rate of change of acceleration", "D) The rate of change of momentum"],
+    correct: 0
+  },
+  {
+    question: "Q19. The work-energy theorem states that the work done on an object is equal to:",
+    options: ["A) Change in mass", "B) Change in velocity", "C) Change in kinetic energy", "D) Change in force"],
+    correct: 2
+  },
+  {
+    question: "Q20. The wavelength of a sound wave is inversely proportional to its:",
+    options: ["A) Frequency", "B) Velocity", "C) Amplitude", "D) Time period"],
+    correct: 0
+  },
+  {
+    question: "Q21. The period of a simple pendulum is independent of:",
+    options: ["A) Length of the pendulum", "B) Amplitude of oscillation", "C) Gravitational acceleration", "D) All of the above"],
+    correct: 1
+  },
+  {
+    question: "Q22. The refractive index of a medium is the ratio of:",
+    options: ["A) Speed of light in vacuum to the speed of light in the medium", "B) Speed of light in the medium to the speed of light in vacuum", "C) Wavelength in the medium to the wavelength in vacuum", "D) None of the above"],
+    correct: 0
+  },
+  {
+    question: "Q23. The power of a lens is given by the formula:",
+    options: ["A) P = 1/f", "B) P = f", "C) P = 1/2f", "D) P = f/2"],
+    correct: 0
+  },
+  {
+    question: "Q24. The unit of electric potential difference is:",
+    options: ["A) Ampere", "B) Volt", "C) Watt", "D) Coulomb"],
+    correct: 1
+  },
+  {
+    question: "Q25. The energy stored in a spring is given by:",
+    options: ["A) 1/2×k×x²", "B) k×x²", "C) k×x", "D) 1/2×k×x"],
+    correct: 0
+  },
+  
+  {
+    "question": "Q26. Which of the following has the highest electronegativity?",
+    options: [
+      "A) Oxygen",
+      "B) Fluorine",
+      "C) Nitrogen",
+      "D) Chlorine"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q27. Which of the following is a Lewis acid?",
+    options: [
+      "A) NH3",
+      "B) BF3",
+      "C) OH−",
+      "D) H2O"
+    ],
+    "correct": 1
+  },
+  
+  {
+    "question": "Q28. Which bond is the most polar?",
+    options: [
+      "A) H−H",
+      "B) H−Cl",
+      "C) H−O",
+      "D) H−F"
+    ],
+    "correct": 3
+  },
+  {
+    "question": "Q29. Which quantum number determines the shape of the orbital?",
+    options: [
+      "A) Principal quantum number",
+      "B) Azimuthal quantum number",
+      "C) Magnetic quantum number",
+      "D) Spin quantum number"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q30. The oxidation number of sulfur in H2SO4 is:",
+    options: [
+      "A) +2",
+      "B) +4",
+      "C) +6",
+      "D) +8"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q31. Which of the following is used as a drying agent?",
+    options: [
+      "A) HCl",
+      "B) H2SO4",
+      "C) HNO3",
+      "D) NaOH"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q32. Which of the following is not an isotope of hydrogen?",
+    options: [
+      "A) Protium",
+      "B) Deuterium",
+      "C) Tritium",
+      "D) Helium"
+    ],
+    "correct": 3
+  },
+  {
+    "question": "Q33. Which gas is evolved when a metal reacts with an acid?",
+    options: [
+      "A) Oxygen",
+      "B) Hydrogen",
+      "C) Carbon dioxide",
+      "D) Nitrogen"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q34. The number of moles in 22.4 liters of a gas at STP is:",
+    options: [
+      "A) 0.5",
+      "B) 1",
+      "C) 2",
+      "D) 3"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q35. The pH of lemon juice is approximately:",
+    options: [
+      "A) 1-2",
+      "B) 3-4",
+      "C) 5-6",
+      "D) 6-7"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q36. The common name for sodium bicarbonate is:",
+    options: [
+      "A) Washing soda",
+      "B) Baking soda",
+      "C) Bleaching powder",
+      "D) Caustic soda"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q37. What is the hybridization of carbon in methane?",
+    options: [
+      "A) sp",
+      "B) sp2",
+      "C) sp3",
+      "D) dsp2"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q38. Which of the following is not a greenhouse gas?",
+    options: [
+      "A) CO2",
+      "B) CH4",
+      "C) H2",
+      "D) N2O"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q39. The chemical name of bleaching powder is:",
+    options: [
+      "A) Sodium chloride",
+      "B) Calcium hypochlorite",
+      "C) Sodium hypochlorite",
+      "D) Calcium chloride"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q40. Avogadro number represents:",
+    options: [
+      "A) Number of molecules in 1 g of a substance",
+      "B) Number of particles in 1 mole",
+      "C) Atomic number",
+      "D) Atomic mass"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q41. Which acid is present in vinegar?",
+    options: [
+      "A) Formic acid",
+      "B) Hydrochloric acid",
+      "C) Acetic acid",
+      "D) Citric acid"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q42. Which of the following metals is liquid at room temperature?",
+    options: [
+      "A) Iron",
+      "B) Lead",
+      "C) Mercury",
+      "D) Zinc"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q43. Which among the following is a strong electrolyte?",
+    options: [
+      "A) CH3COOH",
+      "B) NaCl",
+      "C) NH4OH",
+      "D) H2CO3"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q44. The molar mass of CO2 is:",
+    options: [
+      "A) 44 g/mol",
+      "B) 28 g/mol",
+      "C) 16 g/mol",
+      "D) 32 g/mol"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Q45. Which of the following is amphoteric?",
+    options: [
+      "A) NaOH",
+      "B) HCl",
+      "C) Al(OH)3",
+      "D) Ca(OH)2"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q46. The number of neutrons in Carbon-14 is:",
+    options: [
+      "A) 6",
+      "B) 7",
+      "C) 8",
+      "D) 14"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q47. The electron configuration of Na⁺ is same as:",
+    options: [
+      "A) Mg",
+      "B) Ne",
+      "C) Li",
+      "D) Ar"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q48. Which gas turns lime water milky?",
+    options: [
+      "A) CO",
+      "B) CO2",
+      "C) H2S",
+      "D) NO2"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q49. Which of the following is used in water purification?",
+    options: [
+      "A) NaCl",
+      "B) CaO",
+      "C) Cl2",
+      "D) HCl"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q50. The shape of the ammonia (NH3) molecule is:",
+    options: [
+      "A) Tetrahedral",
+      "B) Trigonal planar",
+      "C) Trigonal pyramidal",
+      "D) Linear"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Q51. The derivative of \(x^2 + 3x + 5\) is:",
+    options: [
+      "A) \(2x + 3\)",
+      "B) \(x^2 + 3\)",
+      "C) \(3x + 5\)",
+      "D) \(2x + 5\)"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Q52. The integral of \(3x^2\) with respect to \(x\) is:",
+    options: [
+      "A) \(x^3 + C\)",
+      "B) \(x^3/3 + C\)",
+      "C) \(3x^3 + C\)",
+      "D) \(x^3/3\)"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Q53. The sum of the angles in a quadrilateral is:",
+    options: [
+      "A) \(180^\circ\)",
+      "B) \(360^\circ\)",
+      "C) \(270^\circ\)",
+      "D) \(90^\circ\)"
+    ],
+    "correct": 1
+  },
+
+  {
+    "question": "Q54. The value of \(\log_2(32)\) is:",
+        options: ["A) 5", "B) 3", "C) 6", "D) 4"],
+    "correct": 0
+  },
+  {
+    "question": "Q55. The area of a rectangle with length 10 and width 4 is:",
+        options: ["A) 20", "B) 30", "C) 40", "D) 50"],
+    "correct": 2
+  },
+  {
+    "question": "Q56. The equation of a line with slope 3 and passing through the origin is:",
+        options: ["A) \(y = 3x\)", "B) \(y = x + 3\)", "C) \(y = 3x + 1\)", "D) \(y = 3x - 1\)"],
+    "correct": 0
+  },
+  {
+    "question": "Q57. The value of \(\sin(90^\circ)\) is:",
+        options: ["A) 0", "B) 1/2", "C) 1", "D) √2/2"],
+    "correct": 2
+  },
+  {
+    "question": "Q58. The solution to the equation \(x^2 - 4 = 0\) is:",
+        options: ["A) \(x = 2\)", "B) \(x = -2\)", "C) \(x = 2, -2\)", "D) \(x = 4\)"],
+    "correct": 2
+  },
+  {
+    "question": "Q59. The inverse of the function \(f(x) = 3x + 4\) is:",
+        options: ["A) \(f^{-1}(x) = (x-4)/3\)", "B) \(f^{-1}(x) = 3x + 4\)", "C) \(f^{-1}(x) = x/3 - 4\)", "D) \(f^{-1}(x) = x-4\)"],
+    "correct": 0
+  },
+  {
+    "question": "Q60. The volume of a cylinder with radius 4 and height 6 is:",
+        options: ["A) \(24\pi\)", "B) \(16\pi\)", "C) \(96\pi\)", "D) \(12\pi\)"],
+    "correct": 0
+  },
+  {
+    "question": "Q61. The derivative of \( \sin(x) \) is:",
+        options: ["A) \( \cos(x) \)", "B) \( -\cos(x) \)", "C) \( \sin(x) \)", "D) \( -\sin(x) \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q62. The integral of \( \cos(x) \) with respect to \(x\) is:",
+        options: ["A) \( \sin(x) \)", "B) \( -\sin(x) \)", "C) \( \cos(x) \)", "D) \( -\cos(x) \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q63. The value of \( \tan(30^\circ) \) is:",
+        options: ["A) \( 1/√3 \)", "B) \( √3 \)", "C) \( 1 \)", "D) \( 0 \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q64. The area of a circle with radius 5 is:",
+        options: ["A) \( 10\pi \)", "B) \( 25\pi \)", "C) \( 50\pi \)", "D) \( 20\pi \)"],
+    "correct": 1
+  },
+  {
+    "question": "Q65. The sum of the roots of the quadratic equation \( x^2 - 6x + 8 = 0 \) is:",
+        options: ["A) 6", "B) -6", "C) 8", "D) -8"],
+    "correct": 0
+  },
+  {
+    "question": "Q66. The derivative of \( x^3 \) is:",
+        options: ["A) \( 3x^2 \)", "B) \( 2x^3 \)", "C) \( 3x \)", "D) \( 6x \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q67. The value of \( \cos(45^\circ) \) is:",
+        options: ["A) \( 1/2 \)", "B) \( 1/\sqrt{2} \)", "C) \( 1 \)", "D) \( 0 \)"],
+    "correct": 1
+  },
+  {
+    "question": "Q68. The value of \( \log_{10}(100) \) is:",
+        options: ["A) 1", "B) 2", "C) 3", "D) 4"],
+    "correct": 1
+  },
+  {
+    "question": "Q69. The solution of \( x^2 + 5x + 6 = 0 \) is:",
+        options: ["A) 1, -6", "B) -1, -6", "C) -2, -3", "D) 2, 3"],
+    "correct": 2
+  },
+  {
+    "question": "Q70. The equation of a line with slope 4 and y-intercept 2 is:",
+        options: ["A) \( y = 4x + 2 \)", "B) \( y = 4x - 2 \)", "C) \( y = 2x + 4 \)", "D) \( y = x + 4 \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q71. The value of \( \sin(60^\circ) \) is:",
+        options: ["A) \( 1/2 \)", "B) \( \sqrt{3}/2 \)", "C) \( 1/\sqrt{2} \)", "D) \( 1 \)"],
+    "correct": 1
+  },
+  {
+    "question": "Q72. The solution of \( 3x - 4 = 5 \) is:",
+        options: ["A) 3", "B) 5", "C) 4", "D) 3/2"],
+    "correct": 3
+  },
+  {
+    "question": "Q73. The equation \( y = 2x + 1 \) represents:",
+        options: ["A) A straight line", "B) A parabola", "C) A circle", "D) A hyperbola"],
+    "correct": 0
+  },
+  {
+    "question": "Q74. The solution to the equation \( x + 3 = 7 \) is:",
+        options: ["A) 4", "B) 3", "C) 1", "D) 7"],
+    "correct": 0
+  },
+  {
+    "question": "Q75. The integral of \( 1/x \) with respect to \(x\) is:",
+        options: ["A) \( \ln|x| + C \)", "B) \( \ln(x) + C \)", "C) \( 1/x + C \)", "D) \( x + C \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q76. The value of \( \log_3(81) \) is:",
+        options: ["A) 3", "B) 4", "C) 2", "D) 5"],
+    "correct": 1
+  },
+  {
+    "question": "Q77. The area of a triangle with base 6 and height 8 is:",
+        options: ["A) 24", "B) 30", "C) 48", "D) 18"],
+    "correct": 0
+  },
+  {
+    "question": "Q78. The value of \( \tan(90^\circ) \) is:",
+        options: ["A) \( \infty \)", "B) 1", "C) 0", "D) \( \sqrt{3} \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q79. The integral of \( x^3 \) with respect to \(x\) is:",
+        options: ["A) \( x^4/4 + C \)", "B) \( x^4 + C \)", "C) \( 4x^3 + C \)", "D) \( x^3/3 + C \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q80. The equation of a line perpendicular to \( y = 2x + 3 \) is:",
+        options: ["A) \( y = -\frac{1}{2}x + 3 \)", "B) \( y = 2x + 3 \)", "C) \( y = -2x + 3 \)", "D) \( y = \frac{1}{2}x - 3 \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q81. The value of \( \log_5(25) \) is:",
+        options: ["A) 2", "B) 5", "C) 3", "D) 4"],
+    "correct": 0
+  },
+  {
+    "question": "Q82. The solution of \( x^2 + 4x + 3 = 0 \) is:",
+    options: ["A) -3, -1", "B) 3, -1", "C) 1, -3", "D) 2, 2"],
+    "correct": 0
+  },
+  {
+    "question": "Q83. The derivative of \( e^x \) is:",
+        options: ["A) \( e^x \)", "B) \( \ln(x) \)", "C) \( x^e \)", "D) \( 1/x \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q84. The area of a square with side length 7 is:",
+        options: ["A) 49", "B) 14", "C) 21", "D) 28"],
+    "correct": 0
+  },
+  {
+    "question": "Q85. The value of \( \cos(30^\circ) \) is:",
+    options: ["A) \( 1/2 \)", "B) \( \sqrt{3}/2 \)", "C) \( 1/\sqrt{2} \)", "D) \( 1 \)"],
+    "correct": 1
+  },
+  {
+    "question": "Q86. The solution of \( 2x - 5 = 9 \) is:",
+    options: ["A) 5", "B) 7", "C) 6", "D) 8"],
+    "correct": 1
+  },
+  {
+    "question": "Q87. The value of \( \log_2(16) \) is:",
+        options: ["A) 4", "B) 2", "C) 8", "D) 6"],
+    "correct": 0
+  },
+  {
+    "question": "Q88. The equation of a line with slope 2 and passing through the point (1, 4) is:",
+        options: ["A) \( y = 2x + 2 \)", "B) \( y = 2x + 1 \)", "C) \( y = 2x - 1 \)", "D) \( y = 2x + 3 \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q89. The area of a parallelogram with base 8 and height 5 is:",
+        options: ["A) 40", "B) 13", "C) 35", "D) 38"],
+    "correct": 0
+  },
+  {
+    "question": "Q90. The value of \( \cos(0^\circ) \) is:",
+        options: ["A) 0", "B) 1", "C) \( \sqrt{2}/2 \)", "D) \( 1/2 \)"],
+    "correct": 1
+  },
+  {
+    "question": "Q91. The solution of \( 5x + 7 = 22 \) is:",
+        options: ["A) 3", "B) 4", "C) 5", "D) 2"],
+    "correct": 0
+  },
+  {
+    "question": "Q92. The area of a sector with radius 6 and angle 60 degrees is:",
+        options: ["A) \( 6\pi \)", "B) \( 12\pi \)", "C) \( 3\pi \)", "D) \( 9\pi \)"],
+    "correct": 2
+  },
+  {
+    "question": "Q93. The solution of \( x^2 + 2x - 3 = 0 \) is:",
+        options: ["A) 1, -3", "B) -1, 3", "C) 3, 1", "D) -2, -2"],
+    "correct": 0
+  },
+  {
+    "question": "Q94. The integral of \( x^2 + 2x \) is:",
+        options: ["A) \( x^3/3 + x^2 + C \)", "B) \( x^3 + x^2 + C \)", "C) \( x^3/3 + C \)", "D) \( x^3 + C \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q95. The value of \( \tan(45^\circ) \) is:",
+        options: ["A) 1", "B) 0", "C) \( \sqrt{2} \)", "D) \( 1/2 \)"],
+    "correct": 0
+  },
+  {
+    "question": "Q96. The solution to the equation \( x - 5 = 3 \) is:",
+        options: ["A) 8", "B) 3", "C) 6", "D) 7"],
+    "correct": 0
+  },
+  {
+    "question": "Q97. The value of \( \log_2(8) \) is:",
+        options: ["A) 3", "B) 2", "C) 1", "D) 4"],
+    "correct": 0
+  },
+  {
+    "question": "Q98. The area of a rhombus with diagonals 10 and 6 is:",
+        options: ["A) 60", "B) 30", "C) 15", "D) 40"],
+    "correct": 1
+  },
+  {
+    "question": "Q99. The solution of \( 3x + 4 = 10 \) is:",
+        options: ["A) 6/3", "B) 1", "C) 2", "D) 3"],
+    "correct": 2
+  },
+  {
+    "question": "Q100. The equation of a line parallel to \( y = 2x + 5 \) is:",
+        options: ["A) \( y = 2x + 3 \)", "B) \( y = 3x + 5 \)", "C) \( y = -2x + 3 \)", "D) \( y = 2x + 7 \)"],
+    "correct": 0
+  },
+
+  {
+    "question": "Q101. Which of the following is used to define a constant in C?",
+        options: ["A) const", "B) #define", "C) static", "D) Both A and B"],
+    "correct": 3
+  },
+  {
+    "question": "Q102. Which of the following is not a valid pointer in C?",
+        options: ["A) int *ptr;", "B) float *ptr;", "C) char ptr;", "D) double *ptr;"],
+    "correct": 2
+  },
+  {
+    "question": "Q103. Which operator is used to access the value pointed to by a pointer?",
+        options: ["A) &", "B) *", "C) ->", "D) ."],
+    "correct": 1
+  },
+  {
+    "question": "Q104. A function that doesn't return any value is declared with which return type in C?",
+        options: ["A) void", "B) int", "C) char", "D) null"],
+    "correct": 0
+  },
+  {
+    "question": "Q105. Which is the correct way to initialize an array of size 5 in C?",
+        options: ["A) int arr[5] = {1, 2, 3, 4, 5};", "B) int arr[5];", "C) int arr[] = {1, 2, 3, 4, 5};", "D) Both A and C"],
+    "correct": 3
+  },
+  {
+    "question": "Q106. The `strlen()` function in C returns the length of a string excluding which character?",
+        options: ["A) space", "B) newline", "C) null character", "D) tab"],
+    "correct": 2
+  },
+  {
+    "question": "Q107. What is the purpose of the `continue` statement in C?",
+        options: ["A) Exit loop", "B) Skip current iteration", "C) Jump to end of function", "D) Terminate program"],
+    "correct": 1
+  },
+  {
+    "question": "Q108. Which function is used to allocate memory dynamically in C?",
+        options: ["A) malloc()", "B) calloc()", "C) realloc()", "D) All of the above"],
+    "correct": 3
+  },
+  {
+    "question": "Q109. What is the output of `printf(\"%d\", 10 % 3);`?",
+        options: ["A) 1", "B) 3", "C) 0", "D) 2"],
+    "correct": 0
+  },
+  {
+    "question": "Q110. Which of the following can be used to implement a queue?",
+        options: ["A) Stack", "B) Array", "C) Linked list", "D) Tree"],
+    "correct": 2
+  },
+  {
+    "question": "Q111. How do you declare a structure in C?",
+        options: ["A) struct StructName { int x; };", "B) struct { int x; };", "C) struct StructName int x;", "D) struct StructName(x);"],
+    "correct": 0
+  },
+  {
+    "question": "Q112. How are structure members accessed?",
+        options: ["A) .", "B) ->", "C) &", "D) :"],
+    "correct": 0
+  },
+  {
+    "question": "Q113. What does the `sizeof()` operator return?",
+        options: ["A) Size of pointer", "B) Size of variable in bytes", "C) Size of data type", "D) Both B and C"],
+    "correct": 3
+  },
+  {
+    "question": "Q114. Which function compares two strings in C?",
+        options: ["A) compare()", "B) strcmp()", "C) stringcmp()", "D) strcompare()"],
+    "correct": 1
+  },
+  {
+    "question": "Q115. Which data structure is used for recursion?",
+        options: ["A) Stack", "B) Queue", "C) Linked List", "D) Tree"],
+    "correct": 0
+  },
+  {
+    "question": "Q116. Which C++ operator is used to allocate memory dynamically?",
+        options: ["A) malloc()", "B) new", "C) calloc()", "D) realloc()"],
+    "correct": 1
+  },
+  {
+    "question": "Q117. How to declare an object in C++?",
+        options: ["A) ClassName objectName;", "B) objectName ClassName;", "C) objectName : ClassName();", "D) ClassName: objectName;"],
+    "correct": 0
+  },
+  {
+    "question": "Q118. Output of `printf(\"%d\", sizeof(int));` is?",
+        options: ["A) 4", "B) 8", "C) 2", "D) Undefined"],
+    "correct": 0
+  },
+  {
+    "question": "Q119. What does `::` operator do in C++?",
+        options: ["A) Access struct member", "B) Access global variable", "C) Define class", "D) Class scope access"],
+    "correct": 3
+  },
+  {
+    "question": "Q120. What is the default return type of functions in C++?",
+        options: ["A) void", "B) int", "C) char", "D) float"],
+    "correct": 1
+  },
+
+  {
+    "question": "Q121. What does OOP stand for?",
+        options: ["A) Object-Oriented Programming", "B) Open Object Programming", "C) Operational Object Programming", "D) Object Operation Program"],
+    "correct": 0
+  },
+  {
+    "question": "Q122. Which of the following is not a pillar of OOP?",
+    options: ["A) Encapsulation", "B) Inheritance", "C) Compilation", "D) Polymorphism"],
+    "correct": 2
+  },
+  {
+    "question": "Q123. Which keyword is used to inherit a class in C++?",
+    options: ["A) inherit", "B) extend", "C) using", "D) : (colon)"],
+    "correct": 3
+  },
+  {
+    "question": "Q124. Which of these is a linear data structure?",
+        options: ["A) Tree", "B) Graph", "C) Array", "D) Hash Table"],
+    "correct": 2
+  },
+  {
+    "question": "Q125. Which data structure uses FIFO method?",
+        options: ["A) Stack", "B) Queue", "C) Linked List", "D) Tree"],
+    "correct": 1
+  },
+  {
+    "question": "Q126. Which traversal method is used in depth-first traversal of trees?",
+        options: ["A) Inorder", "B) Preorder", "C) Postorder", "D) All of the above"],
+    "correct": 3
+  },
+  {
+    "question": "Q127. Which of the following is not an operating system?",
+        options: ["A) Windows", "B) Linux", "C) Oracle", "D) macOS"],
+    "correct": 2
+  },
+  {
+    "question": "Q128. The process of loading the operating system into memory is called?",
+        options: ["A) Booting", "B) Installing", "C) Scheduling", "D) Paging"],
+    "correct": 0
+  },
+  {
+    "question": "Q129. Which scheduling algorithm gives minimum average waiting time?",
+        options: ["A) FCFS", "B) SJF", "C) Round Robin", "D) Priority"],
+    "correct": 1
+  },
+  {
+    "question": "Q130. In a binary search algorithm, the data must be?",
+        options: ["A) Sorted", "B) Unsorted", "C) Unique", "D) Random"],
+    "correct": 0
+  },
+  {
+    "question": "Q131. Which of the following is not a type of loop in C?",
+        options: ["A) for", "B) while", "C) repeat", "D) do-while"],
+    "correct": 2
+  },
+  {
+    "question": "Q132. The IP address 127.0.0.1 is also known as?",
+        options: ["A) Broadcast address", "B) Loopback address", "C) Default gateway", "D) Subnet mask"],
+    "correct": 1
+  },
+  {
+    "question": "Q133. What does SQL stand for?",
+        options: ["A) Structured Query Language", "B) Strong Question Language", "C) Simple Query List", "D) Secure Query Language"],
+    "correct": 0
+  },
+  {
+    "question": "Q134. Which command is used to view all tables in a database?",
+        options: ["A) SHOW TABLES;", "B) LIST TABLES;", "C) DISPLAY TABLES;", "D) SELECT * FROM TABLES;"],
+    "correct": 0
+  },
+  {
+    "question": "Q135. HTML stands for?",
+        options: ["A) Hyper Trainer Marking Language", "B) Hyper Text Markup Language", "C) Hyper Text Mark Language", "D) Hyper Tool Markup Language"],
+    "correct": 1
+  },
+  {
+    "question": "Q136. In HTML, `<br>` tag is used for?",
+        options: ["A) Bold text", "B) Line break", "C) Paragraph", "D) Horizontal line"],
+    "correct": 1
+  },
+  {
+    "question": "Q137. Which tag is used for creating hyperlinks in HTML?",
+        options: ["A) `<link>`", "B) `<a>`", "C) `<href>`", "D) `<hyper>`"],
+    "correct": 1
+  },
+  {
+    "question": "Q138. Which data structure is used to convert infix to postfix notation?",
+        options: ["A) Queue", "B) Stack", "C) Tree", "D) Heap"],
+    "correct": 1
+  },
+  {
+    "question": "Q139. Which data structure is used to implement recursion?",
+        options: ["A) Stack", "B) Queue", "C) Array", "D) Linked List"],
+    "correct": 0
+  },
+  {
+    "question": "Q140. A full binary tree of height h has how many nodes?",
+        options: ["A) 2^h", "B) 2^(h+1) - 1", "C) 2^h - 1", "D) h^2"],
+    "correct": 1
+  },
+  {
+    "question": "Q141. Which of these is a client-side scripting language?",
+        options: ["A) PHP", "B) Python", "C) JavaScript", "D) SQL"],
+    "correct": 2
+  },
+  {
+    "question": "Q142. Which SQL statement is used to remove a table?",
+        options: ["A) DELETE", "B) REMOVE", "C) DROP", "D) ERASE"],
+    "correct": 2
+  },
+  {
+    "question": "Q143. A compiler translates?",
+        options: ["A) High-level to machine code", "B) Assembly to machine code", "C) Low-level to high-level", "D) Machine code to source code"],
+    "correct": 0
+  },
+  {
+    "question": "Q144. What is the purpose of normalization in databases?",
+        options: ["A) Increase redundancy", "B) Decrease performance", "C) Remove anomalies", "D) Increase duplication"],
+    "correct": 2
+  },
+  {
+    "question": "Q145. Which of the following is NOT a type of database key?",
+        options: ["A) Primary Key", "B) Secondary Key", "C) Foreign Key", "D) Alternate Key"],
+    "correct": 1
+  },
+  {
+    "question": "Q146. Which protocol is used to send emails?",
+        options: ["A) FTP", "B) HTTP", "C) SMTP", "D) TCP"],
+    "correct": 2
+  },
+  {
+    "question": "Q147. Which of these is not a programming language?",
+        options: ["A) Python", "B) Java", "C) C++", "D) Oracle"],
+    "correct": 3
+  },
+  {
+    "question": "Q148. In networks, what does LAN stand for?",
+        options: ["A) Local Access Network", "B) Local Area Network", "C) Logical Area Network", "D) Long Area Network"],
+    "correct": 1
+  },
+  {
+    "question": "Q149. Which unit holds the ALU and Control Unit?",
+        options: ["A) RAM", "B) ROM", "C) CPU", "D) GPU"],
+    "correct": 2
+  },
+  {
+    "question": "Q150. Which HTML tag is used to define a table row?",
+        options: ["A) `<td>`", "B) `<tr>`", "C) `<table>`", "D) `<th>`"],
+    "correct": 1
+  },
+   
+  {
+    "question": "Q151. Which data structure uses FIFO (First In First Out) principle?",
+        options: ["A) Stack", "B) Queue", "C) Tree", "D) Graph"],
+    "correct": 1
+  },
+  {
+    "question": "Q152. In which layer of the OSI model does routing take place?",
+        options: ["A) Data Link", "B) Network", "C) Transport", "D) Session"],
+    "correct": 1
+  },
+  {
+    "question": "Q153. What is the time complexity of binary search in a sorted array?",
+        options: ["A) O(n)", "B) O(log n)", "C) O(n log n)", "D) O(1)"],
+    "correct": 1
+  },
+  {
+    "question": "Q154. Which SQL clause is used to filter records?",
+        options: ["A) SELECT", "B) FROM", "C) WHERE", "D) ORDER BY"],
+    "correct": 2
+  },
+  {
+    "question": "Q155. What is the main purpose of an operating system?",
+        options: ["A) Editing documents", "B) Browsing the internet", "C) Managing hardware and software", "D) Compiling programs"],
+    "correct": 2
+  },
+  {
+    "question": "Q156. In a C program, what is the default return type of the main function?",
+        options: ["A) void", "B) int", "C) float", "D) char"],
+    "correct": 1
+  },
+  {
+    "question": "Q157. Which of the following is not a valid data type in C?",
+        options: ["A) int", "B) float", "C) real", "D) char"],
+    "correct": 2
+  },
+  {
+    "question": "Q158. What does HTML stand for?",
+        options: ["A) HyperText Machine Language", "B) HighText Markup Language", "C) HyperText Markup Language", "D) None of the above"],
+    "correct": 2
+  },
+  {
+    "question": "Q159. Which of the following is not a web browser?",
+        options: ["A) Chrome", "B) Firefox", "C) Windows", "D) Safari"],
+    "correct": 2
+  },
+  {
+    "question": "Q160. Which of the following is used to connect a database in PHP?",
+        options: ["A) mysqli_connect()", "B) connect_db()", "C) db_open()", "D) sql_connect()"],
+    "correct": 0
+  },
+  {
+    "question": "Q161. Which tag is used for inserting the largest heading in HTML?",
+        options: ["A) <h1>", "B) <head>", "C) <h6>", "D) <heading>"],
+    "correct": 0
+  },
+  {
+    "question": "Q162. What is the default port number of HTTP?",
+        options: ["A) 443", "B) 21", "C) 80", "D) 25"],
+    "correct": 2
+  },
+  {
+    "question": "Q163. In OOP, which feature allows using the same function name for different purposes?",
+        options: ["A) Inheritance", "B) Encapsulation", "C) Polymorphism", "D) Abstraction"],
+    "correct": 2
+  },
+  {
+    "question": "Q164. What does the acronym SQL stand for?",
+        options: ["A) Structured Query Language", "B) Simple Query Language", "C) Sequential Query Language", "D) Server Query Language"],
+    "correct": 0
+  },
+  {
+    "question": "Q165. What is the output of 4 & 1 in C?",
+        options: ["A) 1", "B) 0", "C) 4", "D) 5"],
+    "correct": 1
+  },
+  {
+    "question": "Q166. Which symbol is used to denote comments in C?",
+        options: ["A) //", "B) /* */", "C) #", "D) Both A and B"],
+    "correct": 3
+  },
+  {
+    "question": "Q167. In databases, which key uniquely identifies each record?",
+        options: ["A) Foreign key", "B) Primary key", "C) Alternate key", "D) Candidate key"],
+    "correct": 1
+  },
+  {
+    "question": "Q168. What does the 'break' statement do in a loop?",
+        options: ["A) Repeats the loop", "B) Skips the current iteration", "C) Terminates the loop", "D) Does nothing"],
+    "correct": 2
+  },
+  {
+    "question": "Q169. Which sorting algorithm has the best average case performance?",
+        options: ["A) Bubble Sort", "B) Selection Sort", "C) Merge Sort", "D) Insertion Sort"],
+    "correct": 2
+  },
+  {
+    "question": "Q170. Which of the following is an IDE?",
+        options: ["A) Chrome", "B) Turbo C", "C) Notepad", "D) Windows"],
+    "correct": 1
+  },
+  {
+    "question": "Q171. Which command is used to compile a C program?",
+        options: ["A) gcc", "B) g++", "C) javac", "D) python"],
+    "correct": 0
+  },
+  {
+    "question": "Q172. Which one is not a loop in C?",
+        options: ["A) for", "B) do-while", "C) if", "D) while"],
+    "correct": 2
+  },
+  {
+    "question": "Q173. A binary tree with n nodes has how many edges?",
+        options: ["A) n", "B) n-1", "C) 2n", "D) 2n-1"],
+    "correct": 1
+  },
+  {
+    "question": "Q174. What is the extension of a C source file?",
+        options: ["A) .exe", "B) .txt", "C) .c", "D) .cpp"],
+    "correct": 2
+  },
+  {
+    "question": "Q175. What is the function of an ALU in a computer?",
+        options: ["A) Storing data", "B) Logical and arithmetic operations", "C) Displaying data", "D) Fetching data"],
+    "correct": 1
+  },
+  {
+    "question": "Q176. In C++, which of the following is used for input?",
+        options: ["A) cin", "B) cout", "C) scanf", "D) print"],
+    "correct": 0
+  },
+  {
+    "question": "Q177. What is the binary equivalent of decimal 10?",
+        options: ["A) 1010", "B) 1111", "C) 1001", "D) 1100"],
+    "correct": 0
+  },
+  {
+    "question": "Q178. Which data structure is used in BFS traversal of a graph?",
+        options: ["A) Stack", "B) Queue", "C) List", "D) Tree"],
+    "correct": 1
+  },
+  {
+    "question": "Q179. Which layer in OSI model ensures reliable transmission?",
+        options: ["A) Physical", "B) Network", "C) Transport", "D) Session"],
+    "correct": 2
+  },
+  {
+    "question": "Q180. In HTML, which tag is used to create a hyperlink?",
+        options: ["A) <a>", "B) <link>", "C) <href>", "D) <url>"],
+    "correct": 0
+  },
+  {
+    "question": "Q181. Which of the following is a preprocessor directive in C?",
+        options: ["A) #include", "B) import", "C) using", "D) include"],
+    "correct": 0
+  },
+  {
+    "question": "Q182. Which command is used to display contents of a table in SQL?",
+        options: ["A) SHOW TABLE", "B) DISPLAY", "C) SELECT * FROM", "D) VIEW"],
+    "correct": 2
+  },
+  {
+    "question": "Q183. What is the value of sizeof(char) in C?",
+        options: ["A) 1", "B) 2", "C) 4", "D) 8"],
+    "correct": 0
+  },
+  {
+    "question": "Q184. Which programming language is known as platform-independent?",
+        options: ["A) C", "B) C++", "C) Java", "D) Python"],
+    "correct": 2
+  },
+  {
+    "question": "Q185. Which memory is volatile?",
+        options: ["A) ROM", "B) RAM", "C) Hard Disk", "D) SSD"],
+    "correct": 1
+  },
+  {
+    "question": "Q186. What does BIOS stand for?",
+        options: ["A) Binary Input Output System", "B) Basic Integrated Operating Setup", "C) Basic Input Output System", "D) Binary Interface Operating Setup"],
+    "correct": 2
+  },
+  {
+    "question": "Q187. Which tag is used to create a checkbox in HTML?",
+        options: ["A) <checkbox>", "B) <input type='check'>", "C) <input type='checkbox'>", "D) <box>"],
+    "correct": 2
+  },
+  {
+    "question": "Q188. What is the output of: printf(\"%c\", 65);?",
+        options: ["A) A", "B) 65", "C) a", "D) Error"],
+    "correct": 0
+  },
+  {
+    "question": "Q189. Which keyword is used to declare a class in C++?",
+        options: ["A) function", "B) class", "C) object", "D) define"],
+    "correct": 1
+  },
+  {
+    "question": "Q190. What is the result of 10 >> 1 in C?",
+        options: ["A) 20", "B) 5", "C) 10", "D) 1"],
+    "correct": 1
+  },
+  {
+    "question": "Q191. Which of the following is a linear data structure?",
+        options: ["A) Tree", "B) Graph", "C) Queue", "D) Hash Table"],
+    "correct": 2
+  },
+  {
+    "question": "Q192. Which company developed the C language?",
+        options: ["A) Microsoft", "B) IBM", "C) Bell Labs", "D) Apple"],
+    "correct": 2
+  },
+  {
+    "question": "Q193. Which device is used to convert digital signals to analog?",
+        options: ["A) Router", "B) Switch", "C) Modem", "D) Repeater"],
+    "correct": 2
+  },
+  {
+    "question": "Q194. Which command is used to remove a file in Linux?",
+        options: ["A) del", "B) erase", "C) remove", "D) rm"],
+    "correct": 3
+  },
+  {
+    "question": "Q195. What does CSS stand for?",
+        options: ["A) Color Style Sheets", "B) Cascading Style Sheets", "C) Computer Style Sheets", "D) Creative Style Sheets"],
+    "correct": 1
+  },
+  {
+    "question": "Q196. Which C function is used to read a character from the user?",
+        options: ["A) getchar()", "B) gets()", "C) scanf()", "D) read()"],
+    "correct": 0
+  },
+  {
+    "question": "Q197. What is the full form of IP in networking?",
+        options: ["A) Internal Protocol", "B) Internet Protocol", "C) Internal Processing", "D) Interconnected Protocol"],
+    "correct": 1
+  },
+  {
+    "question": "Q198. What does the abbreviation GUI stand for?",
+        options: ["A) Graphical User Interface", "B) General User Interface", "C) Guided User Interface", "D) Graphical Unit Interface"],
+    "correct": 0
+  },
+  {
+    "question": "Q199. What will be the output of 2 * 3 + 4 in C?",
+        options: ["A) 14", "B) 10", "C) 6", "D) 12"],
+    "correct": 1
+  },
+  {
+    "question": "Q200. Which language is used for database management?",
+        options: ["A) HTML", "B) SQL", "C) CSS", "D) XML"],
+    "correct": 1
+  }
+]
+
+    }
+
+    function loadQuiz() {
+      const category = "physics"; // Fixed category
+      const quizContainer = document.getElementById("quiz");
+      quizContainer.innerHTML = "";
+
+      const selectedQuizData = quizData[category] || [];
+      if (selectedQuizData.length === 0) {
+        quizContainer.innerHTML = "<p>No questions available.</p>";
+        return;
+      }
+
+      selectedQuizData.forEach((q, i) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "question-block";
+        qBlock.innerHTML = `
+          <div class="question">${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, idx) => `
+              <div>
+                <label>
+                  <input type="radio" name="q${i}" value="${idx}"> ${opt}
+                </label>
+              </div>
+            `).join("")}
+          </div>
+        `;
+        quizContainer.appendChild(qBlock);
+      });
+    }
+
+    function submitQuiz() {
+      let score = 0;
+      const category = "physics";
+      const selectedQuizData = quizData[category] || [];
+
+      selectedQuizData.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const options = document.querySelectorAll(`input[name="q${i}"]`);
+
+        if (selected && parseInt(selected.value) === q.correct) {
+          score++;
+          options[q.correct].parentElement.classList.add("correct");
+        } else {
+          options[q.correct].parentElement.classList.add("correct");
+          if (selected) {
+            selected.parentElement.classList.add("incorrect");
+          }
+        }
+      });
+
+      const result = document.getElementById("result");
+      result.textContent = `You got ${score} out of ${selectedQuizData.length} correct.`;
+      result.style.opacity = 1;
+    }
+
+    function resetQuiz() {
+      loadQuiz();
+      document.getElementById("result").textContent = '';
+      document.getElementById("result").style.opacity = 0;
+    }
+
+    // Load quiz on page load
+    loadQuiz();
+  </script>
+</body>
+</html>
+
+
